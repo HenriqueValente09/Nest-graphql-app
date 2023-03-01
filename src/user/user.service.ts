@@ -9,20 +9,29 @@ import { UpdateUserInput } from './dto/update-user.input';
 export class UserService {
     constructor(
         @InjectRepository(User)
-        private userRepository:Repository<User>
-    ){}
+        private userRepository: Repository<User>
+    ) { }
 
-    async findAllUsers(): Promise<User[]>{
+    async findAllUsers(): Promise<User[]> {
         const users = await this.userRepository.find()
         return users;
     }
 
-    async findUserById(id: string): Promise<User>{
+    async findUserById(id: string): Promise<User> {
         const options = { relations: ['posts'] };
-        const user = await this.userRepository.findOneBy({id: id})
-        if(!user){
+        const user = await this.userRepository.findOneBy({ id: id })
+        if (!user) {
             throw new NotFoundException("Usuário não encontrado!");
-            
+
+        }
+        return user;
+    }
+
+    async findUserByEmail(email: string): Promise<User> {
+        const user = await this.userRepository.findOne({ where: { email } })
+        if (!user) {
+            throw new NotFoundException("Usuário não encontrado!");
+
         }
         return user;
     }
@@ -31,8 +40,8 @@ export class UserService {
         const user = this.userRepository.create(data)
         const userSaved = await this.userRepository.save(user)
 
-        if(!userSaved){
-            throw new InternalServerErrorException('Problem para criar um usuário')
+        if (!userSaved) {
+            throw new InternalServerErrorException('Problema para criar um usuário')
         }
 
         return userSaved;
@@ -40,22 +49,22 @@ export class UserService {
 
     async updateUser(id: string, data: UpdateUserInput): Promise<User> {
         const user = await this.findUserById(id)
-        await this.userRepository.update(user, {...data})
+        await this.userRepository.update(user, { ...data })
 
-        const userUpdated = this.userRepository.create({...user, ...data})
+        const userUpdated = this.userRepository.create({ ...user, ...data })
 
-        if(!userUpdated){
+        if (!userUpdated) {
             throw new InternalServerErrorException('Problem para criar um usuário')
         }
 
         return userUpdated;
     }
 
-    async deleteUser(id:string): Promise<boolean> {
+    async deleteUser(id: string): Promise<boolean> {
         const user = await this.findUserById(id)
         const deleted = await this.userRepository.delete(user)
 
-        if(deleted) {
+        if (deleted) {
             return true;
         }
 
