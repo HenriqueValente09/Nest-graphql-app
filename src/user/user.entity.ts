@@ -3,6 +3,8 @@ import { hashPasswordTransform } from "src/common/crypto";
 import { Post } from "../post/entities/post.entity";
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
+console.log(Post)
+
 @ObjectType()
 @Entity()
 export class User{
@@ -23,6 +25,9 @@ export class User{
     @HideField()
     password:string;
 
+    @Field({
+        nullable: "items"
+    })
     @OneToMany(() => Post, (post) => post.user)
     posts: Post[];
 }

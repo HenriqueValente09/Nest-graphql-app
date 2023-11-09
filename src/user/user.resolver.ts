@@ -1,14 +1,18 @@
-import { Args, Mutation, Resolver, Query } from '@nestjs/graphql';
+import { Args, Mutation, Resolver, Query, ResolveField, Parent } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { CreateUserInput } from './dto/create-user.input';
 import { User } from './user.entity';
 import { UpdateUserInput } from './dto/update-user.input';
+import { Post } from 'src/post/entities/post.entity';
+import { PostService } from 'src/post/post.service';
 
-@Resolver()
+@Resolver(of => User)
 export class UserResolver {
     constructor(
-        private userService: UserService
-    ) {}
+        private userService: UserService,
+        private postService: PostService
+    ) { }
+
 
     @Query(() => [User])
     async users(): Promise<User[]> {
@@ -24,10 +28,16 @@ export class UserResolver {
 
     @Query(() => User)
     async findUser(
-        @Args('id') id : string
+        @Args('id') id: string
     ): Promise<User> {
         const user = await this.userService.findUserById(id);
         return user;
+    }
+
+    @ResolveField(() => Post)
+    async posts(@Parent() user: User) {
+        const { id } = user;
+        return this.postService.findAllPosts({userId: id});
     }
 
     @Mutation(() => User)
@@ -49,7 +59,7 @@ export class UserResolver {
 
     @Mutation(() => Boolean)
     async deleteUser(
-        @Args('id') id:string 
+        @Args('id') id: string
     ): Promise<boolean> {
         const deleted = await this.userService.deleteUser(id)
         return deleted;

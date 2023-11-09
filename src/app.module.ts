@@ -9,6 +9,7 @@ import { UserModule } from './user/user.module';
 import { User } from './user/user.entity';
 import { AuthModule } from './auth/auth.module';
 import { PostModule } from './post/post.module';
+import { Post } from './post/entities/post.entity';
 require('dotenv').config()
 
 @Module({
@@ -17,10 +18,10 @@ require('dotenv').config()
       type: "postgres",
       host: "localhost",
       port: 5432,
-      username: "postgres",
+      username: "admin",
       password: process.env.POSTGRES_PASSWORD,
-      database: "postgres",
-      entities: [User],
+      database: "nest-graphql",
+      autoLoadEntities: true,
       synchronize: true
   }),
     GraphQLModule.forRoot<ApolloDriverConfig>({

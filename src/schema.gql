@@ -2,8 +2,16 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Post {
+  id: ID!
+  content: String!
+  user: User!
+  userId: String!
+}
+
 type User {
   id: ID!
+  posts: [Post]!
   name: String!
   email: String!
 }
@@ -17,6 +25,7 @@ type Query {
   users: [User!]!
   findByEmail(email: String!): User!
   findUser(id: String!): User!
+  post(id: Int!): Post!
 }
 
 type Mutation {
@@ -24,6 +33,9 @@ type Mutation {
   updateUser(id: String!, data: UpdateUserInput!): User!
   deleteUser(id: String!): Boolean!
   login(data: AuthInput!): AuthType!
+  createPost(createPostInput: CreatePostInput!): Post!
+  updatePost(updatePostInput: UpdatePostInput!): Post!
+  removePost(id: Int!): Post!
 }
 
 input CreateUserInput {
@@ -41,4 +53,14 @@ input UpdateUserInput {
 input AuthInput {
   email: String!
   password: String!
+}
+
+input CreatePostInput {
+  content: String!
+  userId: String!
+}
+
+input UpdatePostInput {
+  content: String!
+  userId: String
 }

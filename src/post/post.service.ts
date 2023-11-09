@@ -4,17 +4,21 @@ import { UpdatePostInput } from './dto/update-post.input';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Post } from './entities/post.entity';
 import { Repository } from 'typeorm';
+import { UserService } from '../user/user.service';
+import { User } from 'src/user/user.entity';
 
 @Injectable()
 export class PostService {
 
   constructor(
+    private userService: UserService,
     @InjectRepository(Post)
-    private postRepository: Repository<Post>
+    private postRepository: Repository<Post>,
   ) { }
 
   async create(data: CreatePostInput): Promise<Post> {
     const post = this.postRepository.create(data)
+    post.user = await this.userService.findUserById(data.userId)
     const postSaved = await this.postRepository.save(post)
 
     if (!postSaved) {
@@ -48,8 +52,8 @@ export class PostService {
     return false;
   }
 
-  async findAllPosts(): Promise<Post[]> {
-    const posts = await this.postRepository.find()
+  async findAllPosts(options): Promise<Post[]> {
+    const posts = await this.postRepository.find({where: options})
     return posts;
   }
 
@@ -61,5 +65,9 @@ export class PostService {
 
     }
     return post;
+  }
+
+  async findUser(userId: string): Promise<User> {
+    return await this.userService.findUserById(userId)
   }
 }
